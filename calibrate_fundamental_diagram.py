@@ -22,11 +22,11 @@ class solve:
         self.init_model_dict()
         
     def init_model_dict(self):
-        
+
         self.model = fd()
         self.estimated_value = estimated_value()
         self.theoretical_value = theoretical_value()
-        
+
         self.model_dict = {"S3":self.model.S3,
                            "Greenshields":self.model.Greenshields,
                            "Greenberg":self.model.Greenberg,
@@ -60,7 +60,7 @@ class solve:
                            "Wang_5PL_joint_estimation":self.model.Wang_5PL_joint_estimation,
                            "Ni_joint_estimation":self.model.Ni_joint_estimation
                            }
-        
+
         self.estimated_value_dict = {"S3":self.estimated_value.S3,
                                      "Greenshields":self.estimated_value.Greenshields,
                                      "Greenberg":self.estimated_value.Greenberg,
@@ -94,7 +94,7 @@ class solve:
                                      "Wang_5PL_joint_estimation":self.estimated_value.Wang_5PL_joint_estimation,
                                      "Ni_joint_estimation":self.estimated_value.Ni_joint_estimation,
                                        }
-        
+
         self.theoretical_value_dict = {"S3":self.theoretical_value.S3,
                                        "Greenshields":self.theoretical_value.Greenshields,
                                        "Greenberg":self.theoretical_value.Greenberg,
@@ -128,7 +128,7 @@ class solve:
                                        "Wang_5PL_joint_estimation":self.theoretical_value.Wang_5PL_joint_estimation,
                                        "Ni_joint_estimation":self.theoretical_value.Ni_joint_estimation,
                                        }
-        
+
         self.bounds = {"S3": Bounds([60, 20, 1], [80, 60, 10]),
                        "Greenshields":Bounds([60, 120], [80, 200]),
                        "Greenberg":Bounds([20, 140], [70, 180]),
@@ -187,17 +187,17 @@ class solve:
     
     def plot_fd(self, model_str, para, para_S3):
         
-        dirs = './Figures' 
+        dirs = './Figures'
         if not os.path.exists(dirs):
             os.makedirs(dirs)
-        
+
         self.k = np.linspace(0.000001,140,70)
         self.v = np.linspace(0.000001,90,70)
         theoretical_values = self.theoretical_value_dict[model_str]
         theoretical_values_S3 = self.theoretical_value_dict["S3"]
         theoretical_speed_S3 = theoretical_values_S3(para_S3, self.k)[0]
         theoretical_flow_S3 = theoretical_values_S3(para_S3, self.k)[1]
-        
+
         if model_str in ["Van_Aerde", "Ni", "Van_Aerde_joint_estimation", "Ni_joint_estimation"]:
             theoretical_density = theoretical_values(para, self.k)[0]
             theoretical_flow = theoretical_values(para, self.k)[1]
@@ -207,7 +207,6 @@ class solve:
             y2 = self.v
             x3 = theoretical_flow
             y3 = self.v
-            pass 
         elif model_str in ["S3","Greenshields","Greenberg","Underwood","NF","GHR_M1","GHR_M2","GHR_M3","KK","Jayakrishnan","MacNicholas","Wang_3PL","Wang_4PL","Wang_5PL","S3_joint_estimation","Greenshields_joint_estimation","Greenberg_joint_estimation","Underwood_joint_estimation","NF_joint_estimation","GHR_M1_joint_estimation","GHR_M2_joint_estimation","GHR_M3_joint_estimation","KK_joint_estimation","Jayakrishnan_joint_estimation","MacNicholas_joint_estimation","Wang_3PL_joint_estimation","Wang_4PL_joint_estimation","Wang_5PL_joint_estimation"]:
             theoretical_speed = theoretical_values(para, self.k)[0]
             theoretical_flow = theoretical_values(para, self.k)[1]
@@ -217,8 +216,6 @@ class solve:
             y2 = theoretical_speed
             x3 = theoretical_flow
             y3 = theoretical_speed
-            pass
-        
         fig = plt.figure(figsize=(7,5))
         plt.scatter(self.density.flatten(), self.flow.flatten(), s = 3, marker='o', c='r', edgecolors='r', label = 'Observation')
         plt.plot(x1, y1, 'y-', linewidth=3, label = model_str)
@@ -232,8 +229,13 @@ class solve:
         plt.ylim((0, 2250))
         plt.legend(loc='upper right', fontsize=14)
         plt.title('Flow vs. density', fontsize=20)
-        fig.savefig("Figures\\flow vs density_{}.png".format(model_str), dpi=400, bbox_inches='tight')
-        
+        fig.savefig(
+            f"Figures\\flow vs density_{model_str}.png",
+            dpi=400,
+            bbox_inches='tight',
+        )
+
+
         fig = plt.figure(figsize=(7,5))
         plt.scatter(self.density.flatten(), self.speed.flatten(), s = 3, marker='o', c='r', edgecolors='r', label = 'Observation')
         plt.plot(x2, y2, 'y-', linewidth=3, label = model_str)
@@ -246,8 +248,13 @@ class solve:
         plt.ylim((0, 90))
         plt.legend(loc='upper right', fontsize=14)
         plt.title('Speed vs. density', fontsize=20)
-        fig.savefig("Figures\\speed vs density_{}.png".format(model_str), dpi=400, bbox_inches='tight')
-        
+        fig.savefig(
+            f"Figures\\speed vs density_{model_str}.png",
+            dpi=400,
+            bbox_inches='tight',
+        )
+
+
         fig = plt.figure(figsize=(7,5))
         plt.scatter(self.flow.flatten(), self.speed.flatten(), s = 3, marker='o', c='r', edgecolors='r', label = 'Observation')
         plt.plot(x3, y3, 'y-', linewidth=3, label = model_str)
@@ -260,14 +267,16 @@ class solve:
         plt.ylim((0, 90))
         plt.legend(loc='upper right', fontsize=14)
         plt.title('Speed vs. flow', fontsize=20)
-        fig.savefig("Figures\\speed vs flow_{}.png".format(model_str), dpi=400, bbox_inches='tight')
+        fig.savefig(
+            f"Figures\\speed vs flow_{model_str}.png", dpi=400, bbox_inches='tight'
+        )
     
 
 if __name__ == '__main__':
-    
+
     # load q-k-v data
     data = pd.read_csv('Data/input_data.csv', header=0)
-    
+
     # Calibrate for different FD models
     x0 = {"S3":[70, 35, 3.6],
           "Greenshields":[70, 140],
@@ -302,9 +311,9 @@ if __name__ == '__main__':
           "Wang_5PL_joint_estimation":[70, 5, 35, 1, 1],
           "Ni_joint_estimation":[70, -3.48e-6, 1/3600, 7.5e-3],
           }
-    
+
     solver = solve(data)
-    
+
     para = {"S3":solver.getSolution("S3", x0['S3']),
             "Greenshields":solver.getSolution("Greenshields", x0['Greenshields']),
             "Greenberg":solver.getSolution("Greenberg", x0['Greenberg']),
@@ -336,7 +345,7 @@ if __name__ == '__main__':
             "Wang_4PL_joint_estimation":solver.getSolution("Wang_4PL_joint_estimation", x0['Wang_4PL_joint_estimation']),
             "Wang_5PL_joint_estimation":solver.getSolution("Wang_5PL_joint_estimation", x0['Wang_5PL_joint_estimation']),
             }
-    
+
     dirs = './Results' 
     if not os.path.exists(dirs):
         os.makedirs(dirs)

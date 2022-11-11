@@ -20,8 +20,7 @@ class fundamental_diagram_model():
     def S3(self, beta):
         vf, kc, foc = beta
         estimated_speed = vf/np.power(1 + np.power((self.observed_density/kc), foc), 2/foc)
-        f_obj = np.mean(np.power(estimated_speed - self.observed_speed, 2))
-        return f_obj
+        return np.mean(np.power(estimated_speed - self.observed_speed, 2))
 
 class first_order_derivative():
     
@@ -36,8 +35,13 @@ class first_order_derivative():
         first_order_derivative_1 = 2*np.mean((vf/np.power(1 + intermediate_variable, 2/foc) - self.observed_speed) / np.power(1 + intermediate_variable, 2/foc))
         first_order_derivative_2 = 2*np.mean((vf/np.power(1 + intermediate_variable, 2/foc) - self.observed_speed) * 2 * vf * intermediate_variable / kc / np.power(1 + intermediate_variable, (foc+2)/foc))
         first_order_derivative_3 = 2*np.mean((vf/np.power(1 + intermediate_variable, 2/foc) - self.observed_speed) * 2 * vf * ((1 + intermediate_variable)*np.log(1 + intermediate_variable) - foc * intermediate_variable * np.log(intermediate_variable)) / np.power(foc, 2) / np.power(1 + intermediate_variable, (foc+2)/foc))
-        first_order_derivative = np.asarray([first_order_derivative_1, first_order_derivative_2, first_order_derivative_3])
-        return first_order_derivative
+        return np.asarray(
+            [
+                first_order_derivative_1,
+                first_order_derivative_2,
+                first_order_derivative_3,
+            ]
+        )
 
 class estimated_value():
     
@@ -78,8 +82,8 @@ class Adam_optimization():
     
     def adam(self):
         # keep track of solutions and scores
-        solutions = list()
-        scores = list()
+        solutions = []
+        scores = []
         # generate an initial point
         x = list(self.x0)
         score = self.objective(x)
@@ -208,27 +212,26 @@ class calibrate():
         x0 = self.x0[model_str]
         Adam = Adam_optimization(objective, derivative, bounds, x0)
         solutions, scores = Adam.adam()
-        parameters = solutions[np.argmin(scores)]
-        return parameters
+        return solutions[np.argmin(scores)]
 
 if __name__ == '__main__':
     
     # load q-k-v data
     filepath = './'
-    data = pd.read_csv(filepath+'input_data.csv', header=0, index_col=None)
+    data = pd.read_csv(f'{filepath}input_data.csv', header=0, index_col=None)
     flow = np.array(data.Flow)
     density = np.array(data.Density)
     speed = np.array(data.Speed)
-    
+
     solver = calibrate(flow, density, speed)
     result = {"S3":solver.getSolution("S3"),}
     print('Calibration results:\n'+'vf =', format(result['S3'][0], '.2f') + ' mi/h')
     print('kc =', format(result['S3'][1], '.2f') + ' veh/mi/ln')
     print('m =', format(result['S3'][2], '.2f'))
-    
+
     plot_results = plot_calibration_results(flow, density, speed, result)
     plot_results.plot_qk(), plot_results.plot_vk(), plot_results.plot_vq()
-    
+
     metrics = getMetrics(flow, density, speed)
     S3_RMSE_SPEED_Overall, S3_RMSE_FLOW_Overall, S3_R2_SPEED_Overall, S3_R2_FLOW_Overall = metrics.S3_RMSE_Overall(result["S3"])
     

@@ -8,71 +8,61 @@ class fundamental_diagram():
         vf, kc, foc = beta
         observed_flow, observed_density, observed_speed = args
         estimated_speed = vf/np.power(1 + np.power((observed_density/kc), foc), 2/foc)
-        f_obj = np.sum(np.power(estimated_speed - observed_speed, 2))
-        return f_obj
+        return np.sum(np.power(estimated_speed - observed_speed, 2))
 
     def Greenshields(self, beta, *args):
         vf, k_jam = beta
         observed_flow, observed_density, observed_speed = args
         estimated_speed = vf*(1 - observed_density/k_jam)
-        f_obj = np.sum(np.power(estimated_speed - observed_speed, 2))
-        return f_obj
+        return np.sum(np.power(estimated_speed - observed_speed, 2))
 
     def Greenberg(self, beta, *args):
         vc, k_jam = beta
         observed_flow, observed_density, observed_speed = args
         estimated_speed = vc*np.log(k_jam/observed_density)
-        f_obj = np.sum(np.power(estimated_speed - observed_speed, 2))
-        return f_obj
+        return np.sum(np.power(estimated_speed - observed_speed, 2))
 
     def Underwood(self, beta, *args):
         vf, kc = beta
         observed_flow, observed_density, observed_speed = args
         estimated_speed = vf*np.exp(-1*observed_density/kc)
-        f_obj = np.sum(np.power(estimated_speed - observed_speed, 2))
-        return f_obj
+        return np.sum(np.power(estimated_speed - observed_speed, 2))
 
     def NF(self, beta, *args):
         vf, k_jam, lambda_NF = beta
         observed_flow, observed_density, observed_speed = args
         estimated_speed = vf*(1-np.exp(-1*lambda_NF/vf*(1/observed_density - 1/k_jam)))
-        f_obj = np.sum(np.power(estimated_speed - observed_speed, 2))
-        return f_obj
+        return np.sum(np.power(estimated_speed - observed_speed, 2))
 
     def GHR_M1(self, beta, *args):
         vf, kc = beta
         observed_flow, observed_density, observed_speed = args
         estimated_speed = vf*np.exp(-0.5*np.power(observed_density/kc, 2))
-        f_obj = np.sum(np.power(estimated_speed - observed_speed, 2))
-        return f_obj
+        return np.sum(np.power(estimated_speed - observed_speed, 2))
 
     def GHR_M2(self, beta, *args):
         vf, k_jam, m = beta
         observed_flow, observed_density, observed_speed = args
         estimated_speed = vf*(1 - np.power(observed_density/k_jam, m))
-        f_obj = np.sum(np.power(estimated_speed - observed_speed, 2))
-        return f_obj
+        return np.sum(np.power(estimated_speed - observed_speed, 2))
 
     def GHR_M3(self, beta, *args):
         vf, k_jam, m = beta
         observed_flow, observed_density, observed_speed = args
         estimated_speed = vf*np.power(1 - observed_density/k_jam, m)
-        f_obj = np.sum(np.power(estimated_speed - observed_speed, 2))
-        return f_obj
+        return np.sum(np.power(estimated_speed - observed_speed, 2))
 
     def KK(self, beta, *args):
         vf, kc, c1, c2, c3 = beta
         observed_flow, observed_density, observed_speed = args
         estimated_speed = vf*(1/(1 + np.exp((observed_density/kc - c1)/c2)) - c3)
-        f_obj = np.sum(np.power(estimated_speed - observed_speed, 2))
-        return f_obj
+        return np.sum(np.power(estimated_speed - observed_speed, 2))
 
     def Jayakrishnan(self, beta, *args):
         vf, v_jam, k_jam, m = beta
         observed_flow, observed_density, observed_speed = args
         estimated_speed = v_jam + (vf - v_jam)*np.power(1 - observed_density/k_jam, m)
-        f_obj = np.sum(np.power(estimated_speed - observed_speed, 2))
-        return f_obj
+        return np.sum(np.power(estimated_speed - observed_speed, 2))
 
     def Van_Aerde(self, beta, *args):
         vf, vc, k_jam, max_flow = beta
@@ -81,43 +71,37 @@ class fundamental_diagram():
         c3 = 1/max_flow - vf/(k_jam*np.power(vc, 2))
         observed_flow, observed_density, observed_speed = args
         estimated_density = 1/(c1 + c2/(vf-observed_speed) + c3*observed_speed)
-        f_obj = np.sum(np.power(estimated_density - observed_density, 2))
-        return f_obj
+        return np.sum(np.power(estimated_density - observed_density, 2))
 
     def MacNicholas(self, beta, *args):
         vf, k_jam, m, c = beta
         observed_flow, observed_density, observed_speed = args
         estimated_speed = vf*(np.power(k_jam, m) - np.power(observed_density, m))/(np.power(k_jam, m) + c*np.power(observed_density, m))
-        f_obj = np.sum(np.power(estimated_speed - observed_speed, 2))
-        return f_obj
+        return np.sum(np.power(estimated_speed - observed_speed, 2))
 
     def Wang_3PL(self, beta, *args):
         vf, kc, theta = beta
         observed_flow, observed_density, observed_speed = args
         estimated_speed = vf/(1+np.exp((observed_density-kc)/theta))
-        f_obj = np.sum(np.power(estimated_speed - observed_speed, 2))
-        return f_obj
+        return np.sum(np.power(estimated_speed - observed_speed, 2))
 
     def Wang_4PL(self, beta, *args):
         vf, vb, kc, theta = beta
         observed_flow, observed_density, observed_speed = args
         estimated_speed = vb + (vf-vb)/(1+np.exp((observed_density-kc)/theta))
-        f_obj = np.sum(np.power(estimated_speed - observed_speed, 2))
-        return f_obj
+        return np.sum(np.power(estimated_speed - observed_speed, 2))
 
     def Wang_5PL(self, beta, *args):
         vf, vb, kc, theta1, theta2 = beta
         observed_flow, observed_density, observed_speed = args
         estimated_speed = vb + (vf-vb)/np.power(1+np.exp((observed_density-kc)/theta1), theta2)
-        f_obj = np.sum(np.power(estimated_speed - observed_speed, 2))
-        return f_obj
+        return np.sum(np.power(estimated_speed - observed_speed, 2))
 
     def Ni(self, beta, *args):
         vf, gamma, tao, l = beta
         observed_flow, observed_density, observed_speed = args
         estimated_density = 1/((gamma*np.power(observed_speed,2)+tao*observed_speed+l)*(1-np.log(1-observed_speed/vf)))
-        f_obj = np.sum(np.power(estimated_density - observed_density, 2))
-        return f_obj
+        return np.sum(np.power(estimated_density - observed_density, 2))
 
     def S3_joint_estimation(self, beta, *args):
         vf, kc, foc = beta
@@ -125,8 +109,10 @@ class fundamental_diagram():
         estimated_speed = vf/np.power(1 + np.power((observed_density/kc), foc), 2/foc)
         estimated_flow = estimated_speed * observed_density
         sigma = np.var(observed_speed) / np.var(observed_flow)
-        f_obj = np.sum(np.power(estimated_speed - observed_speed, 2) + sigma * np.power(estimated_flow - observed_flow, 2))
-        return f_obj
+        return np.sum(
+            np.power(estimated_speed - observed_speed, 2)
+            + sigma * np.power(estimated_flow - observed_flow, 2)
+        )
 
     def Greenshields_joint_estimation(self, beta, *args):
         vf, k_jam = beta
@@ -134,8 +120,10 @@ class fundamental_diagram():
         estimated_speed = vf*(1 - observed_density/k_jam)
         estimated_flow = estimated_speed * observed_density
         sigma = np.var(observed_speed) / np.var(observed_flow)
-        f_obj = np.sum(np.power(estimated_speed - observed_speed, 2) + sigma * np.power(estimated_flow - observed_flow, 2))
-        return f_obj
+        return np.sum(
+            np.power(estimated_speed - observed_speed, 2)
+            + sigma * np.power(estimated_flow - observed_flow, 2)
+        )
 
     def Greenberg_joint_estimation(self, beta, *args):
         vc, k_jam = beta
@@ -143,8 +131,10 @@ class fundamental_diagram():
         estimated_speed = vc*np.log(k_jam/observed_density)
         estimated_flow = estimated_speed * observed_density
         sigma = np.var(observed_speed) / np.var(observed_flow)
-        f_obj = np.sum(np.power(estimated_speed - observed_speed, 2) + sigma * np.power(estimated_flow - observed_flow, 2))
-        return f_obj
+        return np.sum(
+            np.power(estimated_speed - observed_speed, 2)
+            + sigma * np.power(estimated_flow - observed_flow, 2)
+        )
 
     def Underwood_joint_estimation(self, beta, *args):
         vf, kc = beta
@@ -152,8 +142,10 @@ class fundamental_diagram():
         estimated_speed = vf*np.exp(-1*observed_density/kc)
         estimated_flow = estimated_speed * observed_density
         sigma = np.var(observed_speed) / np.var(observed_flow)
-        f_obj = np.sum(np.power(estimated_speed - observed_speed, 2) + sigma * np.power(estimated_flow - observed_flow, 2))
-        return f_obj
+        return np.sum(
+            np.power(estimated_speed - observed_speed, 2)
+            + sigma * np.power(estimated_flow - observed_flow, 2)
+        )
 
     def NF_joint_estimation(self, beta, *args):
         vf, k_jam, lambda_NF = beta
@@ -161,8 +153,10 @@ class fundamental_diagram():
         estimated_speed = vf*(1-np.exp(-1*lambda_NF/vf*(1/observed_density - 1/k_jam)))
         estimated_flow = estimated_speed * observed_density
         sigma = np.var(observed_speed) / np.var(observed_flow)
-        f_obj = np.sum(np.power(estimated_speed - observed_speed, 2) + sigma * np.power(estimated_flow - observed_flow, 2))
-        return f_obj
+        return np.sum(
+            np.power(estimated_speed - observed_speed, 2)
+            + sigma * np.power(estimated_flow - observed_flow, 2)
+        )
 
     def GHR_M1_joint_estimation(self, beta, *args):
         vf, kc = beta
@@ -170,8 +164,10 @@ class fundamental_diagram():
         estimated_speed = vf*np.exp(-0.5*np.power(observed_density/kc, 2))
         estimated_flow = estimated_speed * observed_density
         sigma = np.var(observed_speed) / np.var(observed_flow)
-        f_obj = np.sum(np.power(estimated_speed - observed_speed, 2) + sigma * np.power(estimated_flow - observed_flow, 2))
-        return f_obj
+        return np.sum(
+            np.power(estimated_speed - observed_speed, 2)
+            + sigma * np.power(estimated_flow - observed_flow, 2)
+        )
 
     def GHR_M2_joint_estimation(self, beta, *args):
         vf, k_jam, m = beta
@@ -179,8 +175,10 @@ class fundamental_diagram():
         estimated_speed = vf*(1 - np.power(observed_density/k_jam, m))
         estimated_flow = estimated_speed * observed_density
         sigma = np.var(observed_speed) / np.var(observed_flow)
-        f_obj = np.sum(np.power(estimated_speed - observed_speed, 2) + sigma * np.power(estimated_flow - observed_flow, 2))
-        return f_obj
+        return np.sum(
+            np.power(estimated_speed - observed_speed, 2)
+            + sigma * np.power(estimated_flow - observed_flow, 2)
+        )
 
     def GHR_M3_joint_estimation(self, beta, *args):
         vf, k_jam, m = beta
@@ -188,8 +186,10 @@ class fundamental_diagram():
         estimated_speed = vf*np.power(1 - observed_density/k_jam, m)
         estimated_flow = estimated_speed * observed_density
         sigma = np.var(observed_speed) / np.var(observed_flow)
-        f_obj = np.sum(np.power(estimated_speed - observed_speed, 2) + sigma * np.power(estimated_flow - observed_flow, 2))
-        return f_obj
+        return np.sum(
+            np.power(estimated_speed - observed_speed, 2)
+            + sigma * np.power(estimated_flow - observed_flow, 2)
+        )
 
     def KK_joint_estimation(self, beta, *args):
         vf, kc, c1, c2, c3 = beta
@@ -197,8 +197,10 @@ class fundamental_diagram():
         estimated_speed = vf*(1/(1 + np.exp((observed_density/kc - c1)/c2)) - c3)
         estimated_flow = estimated_speed * observed_density
         sigma = np.var(observed_speed) / np.var(observed_flow)
-        f_obj = np.sum(np.power(estimated_speed - observed_speed, 2) + sigma * np.power(estimated_flow - observed_flow, 2))
-        return f_obj
+        return np.sum(
+            np.power(estimated_speed - observed_speed, 2)
+            + sigma * np.power(estimated_flow - observed_flow, 2)
+        )
 
     def Jayakrishnan_joint_estimation(self, beta, *args):
         vf, v_jam, k_jam, m = beta
@@ -206,8 +208,10 @@ class fundamental_diagram():
         estimated_speed = v_jam + (vf - v_jam)*np.power(1 - observed_density/k_jam, m)
         estimated_flow = estimated_speed * observed_density
         sigma = np.var(observed_speed) / np.var(observed_flow)
-        f_obj = np.sum(np.power(estimated_speed - observed_speed, 2) + sigma * np.power(estimated_flow - observed_flow, 2))
-        return f_obj
+        return np.sum(
+            np.power(estimated_speed - observed_speed, 2)
+            + sigma * np.power(estimated_flow - observed_flow, 2)
+        )
 
     def Van_Aerde_joint_estimation(self, beta, *args):
         vf, vc, k_jam, max_flow = beta
@@ -218,8 +222,10 @@ class fundamental_diagram():
         estimated_density = 1/(c1 + c2/(vf-observed_speed) + c3*observed_speed)
         estimated_flow = observed_speed * estimated_density
         sigma = np.var(observed_density) / np.var(observed_flow)
-        f_obj = np.sum(np.power(estimated_density - observed_density, 2) + sigma * np.power(estimated_flow - observed_flow, 2))
-        return f_obj
+        return np.sum(
+            np.power(estimated_density - observed_density, 2)
+            + sigma * np.power(estimated_flow - observed_flow, 2)
+        )
 
     def MacNicholas_joint_estimation(self, beta, *args):
         vf, k_jam, m, c = beta
@@ -227,8 +233,10 @@ class fundamental_diagram():
         estimated_speed = vf*(np.power(k_jam, m) - np.power(observed_density, m))/(np.power(k_jam, m) + c*np.power(observed_density, m))
         estimated_flow = estimated_speed * observed_density
         sigma = np.var(observed_speed) / np.var(observed_flow)
-        f_obj = np.sum(np.power(estimated_speed - observed_speed, 2) + sigma * np.power(estimated_flow - observed_flow, 2))
-        return f_obj
+        return np.sum(
+            np.power(estimated_speed - observed_speed, 2)
+            + sigma * np.power(estimated_flow - observed_flow, 2)
+        )
 
     def Wang_3PL_joint_estimation(self, beta, *args):
         vf, kc, theta = beta
@@ -236,8 +244,10 @@ class fundamental_diagram():
         estimated_speed = vf/(1+np.exp((observed_density-kc)/theta))
         estimated_flow = estimated_speed * observed_density
         sigma = np.var(observed_speed) / np.var(observed_flow)
-        f_obj = np.sum(np.power(estimated_speed - observed_speed, 2) + sigma * np.power(estimated_flow - observed_flow, 2))
-        return f_obj
+        return np.sum(
+            np.power(estimated_speed - observed_speed, 2)
+            + sigma * np.power(estimated_flow - observed_flow, 2)
+        )
 
     def Wang_4PL_joint_estimation(self, beta, *args):
         vf, vb, kc, theta = beta
@@ -245,8 +255,10 @@ class fundamental_diagram():
         estimated_speed = vb + (vf-vb)/(1+np.exp((observed_density-kc)/theta))
         estimated_flow = estimated_speed * observed_density
         sigma = np.var(observed_speed) / np.var(observed_flow)
-        f_obj = np.sum(np.power(estimated_speed - observed_speed, 2) + sigma * np.power(estimated_flow - observed_flow, 2))
-        return f_obj
+        return np.sum(
+            np.power(estimated_speed - observed_speed, 2)
+            + sigma * np.power(estimated_flow - observed_flow, 2)
+        )
 
     def Wang_5PL_joint_estimation(self, beta, *args):
         vf, vb, kc, theta1, theta2 = beta
@@ -254,8 +266,10 @@ class fundamental_diagram():
         estimated_speed = vb + (vf-vb)/np.power(1+np.exp((observed_density-kc)/theta1), theta2)
         estimated_flow = estimated_speed * observed_density
         sigma = np.var(observed_speed) / np.var(observed_flow)
-        f_obj = np.sum(np.power(estimated_speed - observed_speed, 2) + sigma * np.power(estimated_flow - observed_flow, 2))
-        return f_obj
+        return np.sum(
+            np.power(estimated_speed - observed_speed, 2)
+            + sigma * np.power(estimated_flow - observed_flow, 2)
+        )
 
     def Ni_joint_estimation(self, beta, *args):
         vf, gamma, tao, l = beta
@@ -263,8 +277,10 @@ class fundamental_diagram():
         estimated_density = 1/((gamma*np.power(observed_speed,2)+tao*observed_speed+l)*(1-np.log(1-observed_speed/vf)))
         estimated_flow = observed_speed * estimated_density
         sigma = np.var(observed_density) / np.var(observed_flow)
-        f_obj = np.sum(np.power(estimated_density - observed_density, 2) + sigma * np.power(estimated_flow - observed_flow, 2))
-        return f_obj
+        return np.sum(
+            np.power(estimated_density - observed_density, 2)
+            + sigma * np.power(estimated_flow - observed_flow, 2)
+        )
 
 
 class estimated_value():

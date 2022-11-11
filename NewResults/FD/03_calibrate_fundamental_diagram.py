@@ -20,26 +20,22 @@ class fundamental_diagram_model():
     def S3(self, beta):
         vf, kc, foc = beta
         estimated_speed = vf/np.power(1 + np.power((self.observed_density/kc), foc), 2/foc)
-        f_obj = np.mean(np.power(estimated_speed - self.observed_speed, 2))
-        return f_obj
+        return np.mean(np.power(estimated_speed - self.observed_speed, 2))
     
     def OVM(self, beta):
         vf, veh_length, form_factor, transition_width = beta
         estimated_speed = vf*(np.tanh((1-self.observed_density*veh_length)/(self.observed_density*transition_width))+np.tanh(form_factor))/(1+np.tanh(form_factor))
-        f_obj = np.mean(np.power(estimated_speed - self.observed_speed, 2))
-        return f_obj
+        return np.mean(np.power(estimated_speed - self.observed_speed, 2))
     
     def METANET(self, beta):
         vf, kc, m = beta
         estimated_speed = vf*np.exp(-1/m*np.power(self.observed_density/kc, m))
-        f_obj = np.mean(np.power(estimated_speed - self.observed_speed, 2))
-        return f_obj
+        return np.mean(np.power(estimated_speed - self.observed_speed, 2))
     
     def MayKeller(self, beta):
         vf, kj, m, n = beta
         estimated_speed = vf*np.power(1 - np.power(self.observed_density/kj, m), n)
-        f_obj = np.mean(np.power(estimated_speed - self.observed_speed, 2))
-        return f_obj
+        return np.mean(np.power(estimated_speed - self.observed_speed, 2))
 
 class first_order_derivative():
     
@@ -54,8 +50,13 @@ class first_order_derivative():
         first_order_derivative_1 = 2*np.mean((vf/np.power(1 + intermediate_variable, 2/foc) - self.observed_speed) / np.power(1 + intermediate_variable, 2/foc))
         first_order_derivative_2 = 2*np.mean((vf/np.power(1 + intermediate_variable, 2/foc) - self.observed_speed) * 2 * vf * intermediate_variable / kc / np.power(1 + intermediate_variable, (foc+2)/foc))
         first_order_derivative_3 = 2*np.mean((vf/np.power(1 + intermediate_variable, 2/foc) - self.observed_speed) * 2 * vf * ((1 + intermediate_variable)*np.log(1 + intermediate_variable) - foc * intermediate_variable * np.log(intermediate_variable)) / np.power(foc, 2) / np.power(1 + intermediate_variable, (foc+2)/foc))
-        first_order_derivative = np.asarray([first_order_derivative_1, first_order_derivative_2, first_order_derivative_3])
-        return first_order_derivative
+        return np.asarray(
+            [
+                first_order_derivative_1,
+                first_order_derivative_2,
+                first_order_derivative_3,
+            ]
+        )
     
     def OVM(self, beta):
         vf, veh_length, form_factor, transition_width = beta
@@ -64,8 +65,14 @@ class first_order_derivative():
         first_order_derivative_2 = 2*np.mean((vf*(np.tanh((1-self.observed_density*veh_length)/(self.observed_density*transition_width))+np.tanh(form_factor))/(1+np.tanh(form_factor)) - self.observed_speed) * (-1) * vf * np.power(1/np.cosh(intermediate_variable), 2)/(transition_width*np.tanh(form_factor) + transition_width))
         first_order_derivative_3 = 2*np.mean((vf*(np.tanh((1-self.observed_density*veh_length)/(self.observed_density*transition_width))+np.tanh(form_factor))/(1+np.tanh(form_factor)) - self.observed_speed) * vf * (self.observed_density*veh_length-1)*np.power(1/np.cosh(intermediate_variable), 2)/np.power(self.observed_density, 2)/np.power(transition_width, 2)/(1+np.tanh(form_factor)))
         first_order_derivative_4 = 2*np.mean((vf*(np.tanh((1-self.observed_density*veh_length)/(self.observed_density*transition_width))+np.tanh(form_factor))/(1+np.tanh(form_factor)) - self.observed_speed) * (-1) * vf * np.power(1/np.cosh(form_factor), 2) * (np.tanh(intermediate_variable) - 1)/np.power(1 + np.tanh(form_factor), 2))
-        first_order_derivative = np.asarray([first_order_derivative_1, first_order_derivative_2, first_order_derivative_3, first_order_derivative_4])
-        return first_order_derivative
+        return np.asarray(
+            [
+                first_order_derivative_1,
+                first_order_derivative_2,
+                first_order_derivative_3,
+                first_order_derivative_4,
+            ]
+        )
     
     def METANET(self, beta):
         vf, kc, m = beta
@@ -73,8 +80,13 @@ class first_order_derivative():
         first_order_derivative_1 = 2*np.mean((vf*intermediate_variable - self.observed_speed)*intermediate_variable)
         first_order_derivative_2 = 2*np.mean((vf*intermediate_variable - self.observed_speed)*(vf*intermediate_variable*np.power(self.observed_density/kc, m)/kc))
         first_order_derivative_3 = 2*np.mean((vf*intermediate_variable - self.observed_speed)*(vf*intermediate_variable*np.power(self.observed_density/kc, m)*(m*np.log(self.observed_density/kc)-1)/m/m))
-        first_order_derivative = np.asarray([first_order_derivative_1, first_order_derivative_2, first_order_derivative_3])
-        return first_order_derivative
+        return np.asarray(
+            [
+                first_order_derivative_1,
+                first_order_derivative_2,
+                first_order_derivative_3,
+            ]
+        )
     
     def MayKeller(self, beta):
         vf, kj, m, n = beta
@@ -83,8 +95,14 @@ class first_order_derivative():
         first_order_derivative_2 = 2*np.mean((vf*np.power(1-intermediate_variable,n) - self.observed_speed)*(m*n*vf*intermediate_variable*np.power(1-intermediate_variable,n-1)/kj))
         first_order_derivative_3 = 2*np.mean((vf*np.power(1-intermediate_variable,n) - self.observed_speed)*(-n*vf*intermediate_variable*np.log(self.observed_density/kj)*np.power(1-intermediate_variable,n-1)))
         first_order_derivative_4 = 2*np.mean((vf*np.power(1-intermediate_variable,n) - self.observed_speed)*(vf*np.power(1-intermediate_variable,n)*np.log(1-intermediate_variable)))
-        first_order_derivative = np.asarray([first_order_derivative_1, first_order_derivative_2, first_order_derivative_3, first_order_derivative_4])
-        return first_order_derivative
+        return np.asarray(
+            [
+                first_order_derivative_1,
+                first_order_derivative_2,
+                first_order_derivative_3,
+                first_order_derivative_4,
+            ]
+        )
 
 class estimated_value():
     
@@ -169,8 +187,8 @@ class Adam_optimization():
     
     def adam(self):
         # keep track of solutions and scores
-        solutions = list()
-        scores = list()
+        solutions = []
+        scores = []
         # generate an initial point
         x = list(self.x0)
         score = self.objective(x)
@@ -226,7 +244,7 @@ class Adam_optimization():
 class plot_calibration_results():
     
     def __init__(self, observed_flow, observed_density, observed_speed, calibrated_paras):
-        
+
         self.observed_flow = observed_flow
         self.observed_density = observed_density
         self.observed_speed = observed_speed
@@ -345,7 +363,7 @@ class getMetrics():
         estimated_speed, estimated_flow = self.estimated_value.S3(paras)
         rmse_speed_small_range = []
         rmse_flow_small_range = []
-        for i in range(0,10):
+        for i in range(10):
             temp_index = np.where((self.observed_density>=10*i) & (self.observed_density<10*(i+1)))
             observed_speed_i = self.observed_speed[temp_index]
             estimated_speed_i = estimated_speed[temp_index]
@@ -365,7 +383,7 @@ class getMetrics():
         estimated_speed, estimated_flow = self.estimated_value.OVM(paras)
         rmse_speed_small_range = []
         rmse_flow_small_range = []
-        for i in range(0,10):
+        for i in range(10):
             temp_index = np.where((self.observed_density>=10*i) & (self.observed_density<10*(i+1)))
             observed_speed_i = self.observed_speed[temp_index]
             estimated_speed_i = estimated_speed[temp_index]
@@ -385,7 +403,7 @@ class getMetrics():
         estimated_speed, estimated_flow = self.estimated_value.METANET(paras)
         rmse_speed_small_range = []
         rmse_flow_small_range = []
-        for i in range(0,10):
+        for i in range(10):
             temp_index = np.where((self.observed_density>=10*i) & (self.observed_density<10*(i+1)))
             observed_speed_i = self.observed_speed[temp_index]
             estimated_speed_i = estimated_speed[temp_index]
@@ -405,7 +423,7 @@ class getMetrics():
         estimated_speed, estimated_flow = self.estimated_value.MayKeller(paras)
         rmse_speed_small_range = []
         rmse_flow_small_range = []
-        for i in range(0,10):
+        for i in range(10):
             temp_index = np.where((self.observed_density>=10*i) & (self.observed_density<10*(i+1)))
             observed_speed_i = self.observed_speed[temp_index]
             estimated_speed_i = estimated_speed[temp_index]
@@ -461,29 +479,30 @@ class calibrate():
         x0 = self.x0[model_str]
         Adam = Adam_optimization(objective, derivative, bounds, x0)
         solutions, scores = Adam.adam()
-        parameters = solutions[np.argmin(scores)]
-        # obj = min(scores)
-        return parameters
+        return solutions[np.argmin(scores)]
 
 
 if __name__ == '__main__':
     
     # load q-k-v data
     filepath = './Data/'
-    flow = np.array(pd.read_csv(filepath+'flow.csv', header=None)).flatten()
-    density = np.array(pd.read_csv(filepath+'density.csv', header=None)).flatten()
-    speed = np.array(pd.read_csv(filepath+'speed.csv', header=None)).flatten()
-    
+    flow = np.array(pd.read_csv(f'{filepath}flow.csv', header=None)).flatten()
+    density = np.array(
+        pd.read_csv(f'{filepath}density.csv', header=None)
+    ).flatten()
+
+    speed = np.array(pd.read_csv(f'{filepath}speed.csv', header=None)).flatten()
+
     solver = calibrate(flow, density, speed)
     result = {"S3":solver.getSolution("S3"),
               "OVM":solver.getSolution("OVM"),
               "METANET":solver.getSolution("METANET"),
               "MayKeller":solver.getSolution("MayKeller"),
               }
-    
+
     plot_results = plot_calibration_results(flow, density, speed, result)
     plot_results.plot_qk(), plot_results.plot_vk(), plot_results.plot_vq()
-    
+
     metrics = getMetrics(flow, density, speed)
     S3_RMSE_SPEED_Overall, S3_RMSE_FLOW_Overall, S3_R2_SPEED_Overall, S3_R2_FLOW_Overall = metrics.S3_RMSE_Overall(result["S3"])
     OVM_RMSE_SPEED_Overall, OVM_RMSE_FLOW_Overall, OVM_R2_SPEED_Overall, OVM_R2_FLOW_Overall = metrics.OVM_RMSE_Overall(result["OVM"])
