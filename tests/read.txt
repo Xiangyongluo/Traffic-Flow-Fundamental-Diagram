@@ -1,1 +1,1 @@
-This folder include testing cases for the project.
+This folder includes testing cases for the project.
