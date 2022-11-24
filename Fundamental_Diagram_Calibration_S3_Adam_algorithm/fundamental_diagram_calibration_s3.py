@@ -1,103 +1,134 @@
 # -*- coding: utf-8 -*-
 
+from math import sqrt
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-from math import sqrt
 from sklearn.metrics import mean_squared_error, r2_score
+from datetime import datetime
+
 plt.rcParams.update({'figure.max_open_warning': 0})
-plt.rc('font',family='Times New Roman')
-plt.rcParams['mathtext.fontset']='stix'
+plt.rc('font', family='Times New Roman')
+plt.rcParams['mathtext.fontset'] = 'stix'
 
 
-class fundamental_diagram_model():
-    
-    def __init__(self, observed_flow, observed_density, observed_speed):
+# Measure running time of the function
+def func_running_time(func):
+    def inner(*args, **kwargs):
+        print(f'INFO Begin to run function: {func.__name__} …')
+        time_start = datetime.now()
+        res = func(*args, **kwargs)
+        time_diff = datetime.now() - time_start
+        print(
+            f'INFO Finished running function: {func.__name__}, total: {time_diff.seconds}s')
+        print()
+        return res
+    return inner
+
+
+class FundamentalDiagramModel:
+
+    def __init__(self, observed_flow: np.array, observed_density: np.array, observed_speed: np.array):
         self.observed_flow = observed_flow
         self.observed_density = observed_density
         self.observed_speed = observed_speed
-    
-    def S3(self, beta):
+
+    def S3(self, beta: list):
         vf, kc, foc = beta
         estimated_speed = vf/np.power(1 + np.power((self.observed_density/kc), foc), 2/foc)
         f_obj = np.mean(np.power(estimated_speed - self.observed_speed, 2))
         return f_obj
-    
+
     def OVM(self, beta):
         vf, veh_length, form_factor, transition_width = beta
-        estimated_speed = vf*(np.tanh((1-self.observed_density*veh_length)/(self.observed_density*transition_width))+np.tanh(form_factor))/(1+np.tanh(form_factor))
+        estimated_speed = vf*(np.tanh((1-self.observed_density*veh_length)/(
+            self.observed_density*transition_width))+np.tanh(form_factor))/(1+np.tanh(form_factor))
         f_obj = np.mean(np.power(estimated_speed - self.observed_speed, 2))
         return f_obj
-    
+
     def METANET(self, beta):
         vf, kc, foc = beta
         estimated_speed = vf*np.exp(-1/foc*np.power(self.observed_density/kc, foc))
         f_obj = np.mean(np.power(estimated_speed - self.observed_speed, 2))
         return f_obj
 
-class first_order_derivative():
-    
-    def __init__(self, observed_flow, observed_density, observed_speed):
+
+class FirstOrderDerivative:
+
+    def __init__(self, observed_flow: np.array, observed_density: np.array, observed_speed: np.array):
         self.observed_flow = observed_flow
         self.observed_density = observed_density
         self.observed_speed = observed_speed
-        
-    def S3(self, beta):
+
+    def S3(self, beta: list):
         vf, kc, foc = beta
-        intermediate_variable = np.power(self.observed_density/kc, foc)
-        first_order_derivative_1 = 2*np.mean((vf/np.power(1 + intermediate_variable, 2/foc) - self.observed_speed) / np.power(1 + intermediate_variable, 2/foc))
-        first_order_derivative_2 = 2*np.mean((vf/np.power(1 + intermediate_variable, 2/foc) - self.observed_speed) * 2 * vf * intermediate_variable / kc / np.power(1 + intermediate_variable, (foc+2)/foc))
-        first_order_derivative_3 = 2*np.mean((vf/np.power(1 + intermediate_variable, 2/foc) - self.observed_speed) * 2 * vf * ((1 + intermediate_variable)*np.log(1 + intermediate_variable) - foc * intermediate_variable * np.log(intermediate_variable)) / np.power(foc, 2) / np.power(1 + intermediate_variable, (foc+2)/foc))
+
+        intermediate_variable = np.power(self.observed_density / kc, foc)
+
+        first_order_derivative_1 = 2 * np.mean((vf / np.power(1 + intermediate_variable, 2 / foc) - self.observed_speed) / np.power(1 + intermediate_variable, 2 / foc))
+
+        first_order_derivative_2 = 2 * np.mean((vf / np.power(1 + intermediate_variable, 2 / foc) - self.observed_speed) * 2 * vf * intermediate_variable / kc / np.power(1 + intermediate_variable, (foc+2)/foc))
+
+        first_order_derivative_3 = 2 * np.mean((vf / np.power(1 + intermediate_variable, 2 / foc) - self.observed_speed) * 2 * vf * ((1 + intermediate_variable) * np.log(1 + intermediate_variable) - foc * intermediate_variable * np.log(intermediate_variable)) / np.power(foc, 2) / np.power(1 + intermediate_variable, (foc+2) / foc))
+
         first_order_derivative = np.asarray([first_order_derivative_1, first_order_derivative_2, first_order_derivative_3])
-        return first_order_derivative
-    
-    def OVM(self, beta):
-        vf, veh_length, form_factor, transition_width = beta
-        intermediate_variable = (1-self.observed_density*veh_length)/(self.observed_density*transition_width)
-        first_order_derivative_1 = 2*np.mean((vf*(np.tanh((1-self.observed_density*veh_length)/(self.observed_density*transition_width))+np.tanh(form_factor))/(1+np.tanh(form_factor)) - self.observed_speed) * (np.tanh(intermediate_variable) + np.tanh(form_factor))/(1+np.tanh(form_factor)))
-        first_order_derivative_2 = 2*np.mean((vf*(np.tanh((1-self.observed_density*veh_length)/(self.observed_density*transition_width))+np.tanh(form_factor))/(1+np.tanh(form_factor)) - self.observed_speed) * (-1) * vf * np.power(1/np.cosh(intermediate_variable), 2)/(transition_width*np.tanh(form_factor) + transition_width))
-        first_order_derivative_3 = 2*np.mean((vf*(np.tanh((1-self.observed_density*veh_length)/(self.observed_density*transition_width))+np.tanh(form_factor))/(1+np.tanh(form_factor)) - self.observed_speed) * vf * (self.observed_density*veh_length-1)*np.power(1/np.cosh(intermediate_variable), 2)/np.power(self.observed_density, 2)/np.power(transition_width, 2)/(1+np.tanh(form_factor)))
-        first_order_derivative_4 = 2*np.mean((vf*(np.tanh((1-self.observed_density*veh_length)/(self.observed_density*transition_width))+np.tanh(form_factor))/(1+np.tanh(form_factor)) - self.observed_speed) * (-1) * vf * np.power(1/np.cosh(form_factor), 2) * (np.tanh(intermediate_variable) - 1)/np.power(1 + np.tanh(form_factor), 2))
-        first_order_derivative = np.asarray([first_order_derivative_1, first_order_derivative_2, first_order_derivative_3, first_order_derivative_4])
+
         return first_order_derivative
 
-class estimated_value():
-    
-    def __init__(self, observed_flow, observed_density, observed_speed):
+    def OVM(self, beta):
+        vf, veh_length, form_factor, transition_width = beta
+        intermediate_variable = (
+            1-self.observed_density*veh_length)/(self.observed_density*transition_width)
+        first_order_derivative_1 = 2*np.mean((vf*(np.tanh((1-self.observed_density*veh_length)/(self.observed_density*transition_width))+np.tanh(
+            form_factor))/(1+np.tanh(form_factor)) - self.observed_speed) * (np.tanh(intermediate_variable) + np.tanh(form_factor))/(1+np.tanh(form_factor)))
+        first_order_derivative_2 = 2*np.mean((vf*(np.tanh((1-self.observed_density*veh_length)/(self.observed_density*transition_width))+np.tanh(form_factor))/(1+np.tanh(
+            form_factor)) - self.observed_speed) * (-1) * vf * np.power(1/np.cosh(intermediate_variable), 2)/(transition_width*np.tanh(form_factor) + transition_width))
+        first_order_derivative_3 = 2*np.mean((vf*(np.tanh((1-self.observed_density*veh_length)/(self.observed_density*transition_width))+np.tanh(form_factor))/(1+np.tanh(form_factor)) - self.observed_speed) * vf * (
+            self.observed_density*veh_length-1)*np.power(1/np.cosh(intermediate_variable), 2)/np.power(self.observed_density, 2)/np.power(transition_width, 2)/(1+np.tanh(form_factor)))
+        first_order_derivative_4 = 2*np.mean((vf*(np.tanh((1-self.observed_density*veh_length)/(self.observed_density*transition_width))+np.tanh(form_factor))/(1+np.tanh(
+            form_factor)) - self.observed_speed) * (-1) * vf * np.power(1/np.cosh(form_factor), 2) * (np.tanh(intermediate_variable) - 1)/np.power(1 + np.tanh(form_factor), 2))
+        first_order_derivative = np.asarray(
+            [first_order_derivative_1, first_order_derivative_2, first_order_derivative_3, first_order_derivative_4])
+        return first_order_derivative
+
+
+class EstimatedValue:
+
+    def __init__(self, observed_flow: np.array, observed_density: np.array, observed_speed: np.array):
         self.observed_flow = observed_flow
         self.observed_density = observed_density
         self.observed_speed = observed_speed
-        
-    def S3(self, beta):
+
+    def S3(self, beta: list):
         vf, kc, foc = beta
-        estimated_speed = vf/np.power(1 + np.power((self.observed_density/kc), foc), 2/foc)
-        estimated_flow = self.observed_density*estimated_speed
+        estimated_speed = vf / np.power(1 + np.power((self.observed_density / kc), foc), 2 / foc)
+        estimated_flow = self.observed_density * estimated_speed
         return estimated_speed, estimated_flow
-    
+
     def OVM(self, beta):
         vf, veh_length, form_factor, transition_width = beta
         estimated_speed = vf*(np.tanh((1-self.observed_density*veh_length)/(self.observed_density*transition_width))+np.tanh(form_factor))/(1+np.tanh(form_factor))
         estimated_flow = self.observed_density*estimated_speed
         return estimated_speed, estimated_flow
 
-class theoretical_value():
-    
-    def __init__(self, density, speed):
+
+class TheoreticalValue:
+
+    def __init__(self, density: np.array):
         self.density = density
-        self.speed = speed
-        
-    def S3(self, beta):
+
+    def S3(self, beta: list):
         vf, kc, foc = beta
-        theoretical_speed = vf/np.power(1 + np.power((self.density/kc), foc), 2/foc)
-        theoretical_flow = self.density*theoretical_speed
+        theoretical_speed = vf / np.power(1 + np.power((self.density / kc), foc), 2 / foc)
+        theoretical_flow = self.density * theoretical_speed
         return theoretical_speed, theoretical_flow
-    
+
     def OVM(self, beta):
         vf, veh_length, form_factor, transition_width = beta
         theoretical_speed = vf*(np.tanh((1-self.density*veh_length)/(self.density*transition_width))+np.tanh(form_factor))/(1+np.tanh(form_factor))
         theoretical_flow = self.density*theoretical_speed
         return theoretical_speed, theoretical_flow
-    
+
     def IDM(self, beta):
         delta = 4
         vf, g0, T0, L = beta
@@ -105,10 +136,11 @@ class theoretical_value():
         theoretical_flow = theoretical_density*self.speed
         return theoretical_density, theoretical_flow
 
-class Adam_optimization():
-    
+
+class AdamOptimization:
+
     def __init__(self, objective, first_order_derivative, bounds, x0):
-        self.n_iter = 2000
+        self.n_iter = 5000
         self.alpha = 0.01
         self.beta1 = 0.9
         self.beta2 = 0.999
@@ -117,11 +149,11 @@ class Adam_optimization():
         self.first_order_derivative = first_order_derivative
         self.bounds = bounds
         self.x0 = x0
-    
+
     def adam(self):
         # keep track of solutions and scores
-        solutions = list()
-        scores = list()
+        solutions = []
+        scores = []
         # generate an initial point
         x = list(self.x0)
         score = self.objective(x)
@@ -152,18 +184,18 @@ class Adam_optimization():
             # report progress
         # print('Solution: %s, \nOptimal function value: %.5f' %(solutions[np.argmin(scores)], min(scores)))
         return solutions, scores
-    
+
     def plot_iteration_process_adam(self, solutions):
         # sample input range uniformly at 0.1 increments
-        xaxis = np.arange(self.bounds[0,0], self.bounds[0,1], 0.1)
-        yaxis = np.arange(self.bounds[1,0], self.bounds[1,1], 0.1)
+        xaxis = np.arange(self.bounds[0, 0], self.bounds[0, 1], 0.1)
+        yaxis = np.arange(self.bounds[1, 0], self.bounds[1, 1], 0.1)
         x, y = np.meshgrid(xaxis, yaxis)
         results = self.objective(x, y)
         solutions = np.asarray(solutions)
-        fig, ax = plt.subplots(figsize=(10,6))
+        fig, ax = plt.subplots(figsize=(10, 6))
         cs = ax.contourf(x, y, results, levels=50, cmap='jet')
-        ax.set_xlim(self.bounds[0,0], self.bounds[0,1])
-        ax.set_ylim(self.bounds[1,0], self.bounds[1,1])
+        ax.set_xlim(self.bounds[0, 0], self.bounds[0, 1])
+        ax.set_ylim(self.bounds[1, 0], self.bounds[1, 1])
         ax.set_xlabel('x')
         ax.set_ylabel('y')
         ax.xaxis.label.set_size(18)
@@ -172,196 +204,227 @@ class Adam_optimization():
         plt.plot(solutions[:, 0], solutions[:, 1], '.-', color='k')
         plt.colorbar(cs)
         plt.title('Iteration process')
-        fig.savefig('../Figures/Case 1/Iteration process.png', dpi=300, bbox_inches='tight')
+        fig.savefig('../Figures/Case 1/Iteration process.png',
+                    dpi=300, bbox_inches='tight')
 
-class plot_calibration_results():
-    
-    def __init__(self, observed_flow, observed_density, observed_speed, calibrated_paras):
-        
+
+class PlotCalibrationResults:
+
+    def __init__(self, observed_flow: np.array, observed_density: np.array, observed_speed: np.array, calibrated_paras: dict, output_path: str = "../examples/Figures_s3"):
+
         self.observed_flow = observed_flow
         self.observed_density = observed_density
         self.observed_speed = observed_speed
+
         self.calibrated_paras_S3 = calibrated_paras["S3"]      # Calibrated from fundamental diagram model, vf, kc, foc
-        self.calibrated_paras_OVM = calibrated_paras["OVM"]    # Calibrated from fundamental diagram model, vf, veh_length, form_factor, transition_width
-        self.calibrated_paras_IDM = [75, 2, 1.7, 5]              # Calibrated from microscopic car-following model, vf, g0, T0, L
-        self.k = np.linspace(0.000001,140,70)
-        self.v = np.linspace(0.000001,self.calibrated_paras_IDM[0],70)
-        self.theoretical_value = theoretical_value(self.k, self.v)
+        self.k = np.linspace(0.000001, 150,70)
+
+        self.theoretical_value = TheoreticalValue(self.k)
         self.theoretical_speed_S3, self.theoretical_flow_S3 = self.theoretical_value.S3(self.calibrated_paras_S3)
-        self.theoretical_speed_OVM, self.theoretical_flow_OVM = self.theoretical_value.OVM(self.calibrated_paras_OVM)
-        self.theoretical_density_IDM, self.theoretical_flow_IDM = self.theoretical_value.IDM(self.calibrated_paras_IDM)
-    
-    def plot_qk(self):
-        
+
+        self.output_path = output_path
+
+    def plot_qk(self, **kwargs):
+
         fig = plt.figure(figsize=(7,5))
         plt.scatter(self.observed_density, self.observed_flow, s = 4, marker='o', c='r', edgecolors='r', label = 'Observation')
         plt.plot(self.k, self.theoretical_flow_S3, 'b-', linewidth=4, label = "S3")
-        plt.plot(self.k, self.theoretical_flow_OVM, 'g--', linewidth=4, label = "OVM")
-        plt.plot(self.theoretical_density_IDM, self.theoretical_flow_IDM, 'k-.', linewidth=4, label = "IDM")
-        plt.xticks(fontsize=14)
-        plt.yticks(fontsize=14)
-        plt.xlabel('Density (veh/km)', fontsize=16)
-        plt.ylabel('Flow (veh/h)', fontsize=16)
-        plt.xlim((0, 120))
-        plt.ylim((0, 2100))
+
         plt.legend(loc='upper right', fontsize=14)
         plt.title('Flow vs. density', fontsize=20)
-        fig.savefig('Figures\\flow vs density.png', dpi=400, bbox_inches='tight')
-    
-    def plot_vk(self):
-        
+        plt.xlabel('Density (veh/mi/ln)', fontsize=16)
+        plt.ylabel('Flow (veh/h/ln)', fontsize=16)
+
+        plt.xticks(fontsize=14)
+        plt.yticks(fontsize=14)
+        plt.xlim(kwargs.get("xlim")) if kwargs.get("xlim") else plt.xlim((0, 150))
+        plt.ylim(kwargs.get("ylim")) if kwargs.get("ylim") else plt.ylim((0, 2100))
+
+        fig.savefig(f'{self.output_path}/flow vs density.png', dpi=400, bbox_inches='tight')
+        print(f"Info: Successfully saved the figure to {self.output_path}/flow vs density.png")
+
+    def plot_vk(self, **kwargs):
+
         fig = plt.figure(figsize=(7,5))
         plt.scatter(self.observed_density, self.observed_speed, s = 4, marker='o', c='r', edgecolors='r', label = 'Observation')
         plt.plot(self.k, self.theoretical_speed_S3, 'b-', linewidth=4, label = "S3")
-        plt.plot(self.k, self.theoretical_speed_OVM, 'g--', linewidth=4, label = "OVM")
-        plt.plot(self.theoretical_density_IDM, self.v, 'k-.', linewidth=4, label = "IDM")
+
+        plt.title('Speed vs. density', fontsize=20)
+        plt.legend(loc='upper right', fontsize=14)
+        plt.xlabel('Density (veh/mi/ln)', fontsize=16)
+        plt.ylabel('Speed (mi/h)', fontsize=16)
+
+        plt.xlim(kwargs.get("xlim")) if kwargs.get("xlim") else plt.xlim((0, 150))
+        plt.ylim(kwargs.get("ylim")) if kwargs.get("ylim") else plt.ylim((0, 90))
         plt.xticks(fontsize=14)
         plt.yticks(fontsize=14)
-        plt.xlabel('Density (veh/km)', fontsize=16)
-        plt.ylabel('Speed (km/h)', fontsize=16)
-        plt.xlim((5, 120))
-        plt.ylim((0, 100))
-        plt.legend(loc='upper right', fontsize=14)
-        plt.title('Speed vs. density', fontsize=20)
-        fig.savefig('Figures\\speed vs density.png', dpi=400, bbox_inches='tight')
-        
-    def plot_vq(self):
-        
+
+        fig.savefig(f'{self.output_path}/speed vs density.png', dpi=400, bbox_inches='tight')
+        print(f"Info: Successfully saved the figure to {self.output_path}/speed vs density.png")
+
+    def plot_vq(self, **kwargs):
+
         fig = plt.figure(figsize=(7,5))
         plt.scatter(self.observed_flow, self.observed_speed, s = 4, marker='o', c='r', edgecolors='r', label = 'Observation')
         plt.plot(self.theoretical_flow_S3, self.theoretical_speed_S3, 'b-', linewidth=4, label = "S3")
-        plt.plot(self.theoretical_flow_OVM, self.theoretical_speed_OVM, 'g--', linewidth=4, label = "OVM")
-        plt.plot(self.theoretical_flow_IDM, self.v, 'k-.', linewidth=4, label = "IDM")
-        plt.xticks(fontsize=14)
-        plt.yticks(fontsize=14)
-        plt.xlabel('Flow (veh/h)', fontsize=16)
-        plt.ylabel('Speed (km/h)', fontsize=16)
-        plt.xlim((400,2100))
-        plt.ylim((0, 100))
+
         plt.legend(loc='upper right', fontsize=14)
         plt.title('Speed vs. flow', fontsize=20)
-        fig.savefig('Figures\\speed vs flow.png', dpi=400, bbox_inches='tight')
+        plt.xlabel('Flow (veh/h/ln)', fontsize=16)
+        plt.ylabel('Speed (mi/h)', fontsize=16)
 
-class getMetrics():
-    
-    def __init__(self, observed_flow, observed_density, observed_speed):
+        plt.xticks(fontsize=14)
+        plt.yticks(fontsize=14)
+        plt.xlim(kwargs.get("xlim")) if kwargs.get("xlim") else plt.xlim((0, 2100))
+        plt.ylim(kwargs.get("ylim")) if kwargs.get("ylim") else plt.ylim((0, 90))
+
+        fig.savefig(f'{self.output_path}/speed vs flow.png', dpi=400, bbox_inches='tight')
+        print(f"Info: Successfully saved the figure to {self.output_path}/speed vs flow.png")
+
+
+class GetMetrics:
+
+    def __init__(self, observed_flow: np.array, observed_density: np.array, observed_speed: np.array, estimated_flow: np.array, estimated_speed: np.array):
         self.observed_flow = observed_flow
         self.observed_density = observed_density
         self.observed_speed = observed_speed
-        self.estimated_value = estimated_value(observed_flow, observed_density, observed_speed)
-        
-    def S3_RMSE_Overall(self, paras):
-        estimated_speed, estimated_flow = self.estimated_value.S3(paras)
-        rmse_speed = mean_squared_error(self.observed_speed, estimated_speed, squared=False)
-        rmse_flow = mean_squared_error(self.observed_flow, estimated_flow, squared=False)
-        r2_speed = r2_score(self.observed_speed, estimated_speed)
-        r2_flow = r2_score(self.observed_flow, estimated_flow)
-        return rmse_speed, rmse_flow, r2_speed, r2_flow
-    
-    def OVM_RMSE_Overall(self, paras):
-        estimated_speed, estimated_flow = self.estimated_value.OVM(paras)
-        rmse_speed = mean_squared_error(self.observed_speed, estimated_speed, squared=False)
-        rmse_flow = mean_squared_error(self.observed_flow, estimated_flow, squared=False)
-        r2_speed = r2_score(self.observed_speed, estimated_speed)
-        r2_flow = r2_score(self.observed_flow, estimated_flow)
-        return rmse_speed, rmse_flow, r2_speed, r2_flow
-    
-    def S3_RMSE_Small_Range(self, paras, interval=10):
-        estimated_speed, estimated_flow = self.estimated_value.S3(paras)
+        self.estimated_flow = estimated_flow
+        self.estimated_speed = estimated_speed
+
+    def RMSE_Overall(self) -> list:
+        rmse_speed = mean_squared_error(
+            self.observed_speed, self.estimated_speed, squared=False)
+        rmse_flow = mean_squared_error(
+            self.observed_flow, self.estimated_flow, squared=False)
+        r2_speed = r2_score(self.observed_speed, self.estimated_speed)
+        r2_flow = r2_score(self.observed_flow, self.estimated_flow)
+        return [rmse_speed, rmse_flow, r2_speed, r2_flow]
+
+    def RMSE_Small_Range(self, interval: int = 10) -> list:
         rmse_speed_small_range = []
         rmse_flow_small_range = []
-        for i in range(0,10):
-            temp_index = np.where((self.observed_density>=10*i) & (self.observed_density<10*(i+1)))
+        density_max_value = min(math.ceil(max(self.observed_density) / 10), 10)
+        for i in range(density_max_value):
+            temp_index = np.where(
+                (self.observed_density >= interval*i) & (self.observed_density < interval*(i+1)))
             observed_speed_i = self.observed_speed[temp_index]
-            estimated_speed_i = estimated_speed[temp_index]
+            estimated_speed_i = self.estimated_speed[temp_index]
             observed_flow_i = self.observed_flow[temp_index]
-            estimated_flow_i = estimated_flow[temp_index]
-            rmse_speed_small_range.append(mean_squared_error(observed_speed_i, estimated_speed_i, squared=False))
-            rmse_flow_small_range.append(mean_squared_error(observed_flow_i, estimated_flow_i, squared=False))
-        observed_speed_last = self.observed_speed[np.where((self.observed_density>=100))]
-        estimated_speed_last = estimated_speed[np.where((self.observed_density>=100))]
-        observed_flow_last = self.observed_flow[np.where((self.observed_density>=100))]
-        estimated_flow_last = estimated_flow[np.where((self.observed_density>=100))]
-        rmse_speed_small_range.append(mean_squared_error(observed_speed_last, estimated_speed_last, squared=False))
-        rmse_flow_small_range.append(mean_squared_error(observed_flow_last, estimated_flow_last, squared=False))
-        return rmse_speed_small_range, rmse_flow_small_range
-    
-    def OVM_RMSE_Small_Range(self, paras, interval=10):
-        estimated_speed, estimated_flow = self.estimated_value.OVM(paras)
-        rmse_speed_small_range = []
-        rmse_flow_small_range = []
-        for i in range(0,10):
-            temp_index = np.where((self.observed_density>=10*i) & (self.observed_density<10*(i+1)))
-            observed_speed_i = self.observed_speed[temp_index]
-            estimated_speed_i = estimated_speed[temp_index]
-            observed_flow_i = self.observed_flow[temp_index]
-            estimated_flow_i = estimated_flow[temp_index]
-            rmse_speed_small_range.append(mean_squared_error(observed_speed_i, estimated_speed_i, squared=False))
-            rmse_flow_small_range.append(mean_squared_error(observed_flow_i, estimated_flow_i, squared=False))
-        observed_speed_last = self.observed_speed[np.where((self.observed_density>=100))]
-        estimated_speed_last = estimated_speed[np.where((self.observed_density>=100))]
-        observed_flow_last = self.observed_flow[np.where((self.observed_density>=100))]
-        estimated_flow_last = estimated_flow[np.where((self.observed_density>=100))]
-        rmse_speed_small_range.append(mean_squared_error(observed_speed_last, estimated_speed_last, squared=False))
-        rmse_flow_small_range.append(mean_squared_error(observed_flow_last, estimated_flow_last, squared=False))
+            estimated_flow_i = self.estimated_flow[temp_index]
+            try:
+                rmse_speed_small_range.append(mean_squared_error(
+                    observed_speed_i, estimated_speed_i, squared=False))
+            except Exception:
+                rmse_speed_small_range.append(0)
+
+            try:
+                rmse_flow_small_range.append(mean_squared_error(
+                    observed_flow_i, estimated_flow_i, squared=False))
+            except Exception:
+                rmse_flow_small_range.append(0)
+        observed_speed_last = self.observed_speed[np.where(
+            (self.observed_density >= density_max_value))]
+        estimated_speed_last = self.estimated_speed[np.where(
+            (self.observed_density >= density_max_value))]
+        observed_flow_last = self.observed_flow[np.where(
+            (self.observed_density >= density_max_value))]
+        estimated_flow_last = self.estimated_flow[np.where(
+            (self.observed_density >= density_max_value))]
+
+        try:
+            rmse_speed_small_range.append(mean_squared_error(
+                observed_speed_last, estimated_speed_last, squared=False))
+        except Exception:
+            rmse_speed_small_range.append(0)
+
+        try:
+            rmse_flow_small_range.append(mean_squared_error(
+                observed_flow_last, estimated_flow_last, squared=False))
+        except Exception:
+            rmse_flow_small_range.append(0)
+
         return rmse_speed_small_range, rmse_flow_small_range
 
-class calibrate():
-    
-    def __init__(self, flow, density, speed):
+
+class Calibrate:
+
+    def __init__(self, flow: np.array, density: np.array, speed: np.array):
         self.flow = flow
         self.density = density
         self.speed = speed
         self.init_model_dict()
-        
+
     def init_model_dict(self):
-        self.model = fundamental_diagram_model(self.flow, self.density, self.speed)
-        self.first_order_derivative = first_order_derivative(self.flow, self.density, self.speed)
-        self.model_dict = {"S3":self.model.S3,
-                           "OVM":self.model.OVM,
-                           }
-        self.derivative = {"S3": self.first_order_derivative.S3,
-                           "OVM": self.first_order_derivative.OVM,
-                           }
-        self.bounds = {"S3": np.asarray([[70,80], [20,60], [1,8]]),     # vf, kc, foc
-                       "OVM": np.asarray([[70,80], [0.003,0.007], [1,2], [0.010,0.030]]),    # vf, veh_length, form_factor, transition_width
-                       }
-        self.x0 = {"S3": np.asarray([75, 35, 3.6]),
-                   "OVM": np.asarray([75, 0.005, 1.5, 0.015]),
-                   }
-    
+        self.model = FundamentalDiagramModel(self.flow, self.density, self.speed)
+        self.first_order_derivative = FirstOrderDerivative(self.flow, self.density, self.speed)
+        self.model_dict = {"S3": self.model.S3}
+        self.derivative = {"S3": self.first_order_derivative.S3}
+        self.bounds = {"S3": np.asarray([[70, 80], [40, 50], [1, 8]])}
+        self.x0 = {"S3": np.asarray([75, 45, 2.7])}
+
+    @func_running_time
     def getSolution(self, model_str):
         # calibration
         objective = self.model_dict[model_str]
         derivative = self.derivative[model_str]
         bounds = self.bounds[model_str]
         x0 = self.x0[model_str]
-        Adam = Adam_optimization(objective, derivative, bounds, x0)
+        Adam = AdamOptimization(objective, derivative, bounds, x0)
         solutions, scores = Adam.adam()
         parameters = solutions[np.argmin(scores)]
-        # obj = min(scores)
         return parameters
 
 
 if __name__ == '__main__':
-    
-    # load q-k-v data
-    filepath = './Data/'
-    flow = np.array(pd.read_csv(filepath+'flow.csv', header=None)).flatten()
-    density = np.array(pd.read_csv(filepath+'density.csv', header=None)).flatten()
-    speed = np.array(pd.read_csv(filepath+'speed.csv', header=None)).flatten()
-    
-    solver = calibrate(flow, density, speed)
-    result = {"S3":solver.getSolution("S3"),
-              "OVM":solver.getSolution("OVM"),
-              }
-    
-    plot_results = plot_calibration_results(flow, density, speed, result)
-    plot_results.plot_qk(), plot_results.plot_vk(), plot_results.plot_vq()
-    
-    metrics = getMetrics(flow, density, speed)
-    S3_RMSE_SPEED_Overall, S3_RMSE_FLOW_Overall, S3_R2_SPEED_Overall, S3_R2_FLOW_Overall = metrics.S3_RMSE_Overall(result["S3"])
-    OVM_RMSE_SPEED_Overall, OVM_RMSE_FLOW_Overall, OVM_R2_SPEED_Overall, OVM_R2_FLOW_Overall = metrics.OVM_RMSE_Overall(result["OVM"])
-    S3_RMSE_Small_Range = metrics.S3_RMSE_Small_Range(result["S3"])
-    OVM_RMSE_Small_Range = metrics.OVM_RMSE_Small_Range(result["OVM"])
-    
+
+    # Step 0: Prepare input data path
+    path_input = r"../data/demo_data_traffic_models_adot/adot_formatted_data_6am_8pm_main.csv"
+
+    # Step 1: Read data
+    df_input = pd.read_csv(path_input)
+
+    # Step 1.1 check if required columns in the dataframe
+    if not {"Flow", "Density", "Speed"}.issubset(df_input.columns):
+        raise ValueError("Input dataframe must include columns: Flow, Density, Speed")
+
+    # Step 2: Get Flow, Density, Speed data accordingly
+    # Step 2.1 data preprocessing, not necessary, only if you have date and time columns in your input data
+    date_invalid = list(df_input[df_input["Flow"] == 0]["date"].unique())
+    df_input = df_input[~df_input['date'].isin(date_invalid)]
+
+    # Step 2.2 get flow, density and speed data
+    flow = np.array(df_input.Flow)
+    density = np.array(df_input.Density)
+    speed = np.array(df_input.Speed)
+
+    # Step 3: Calibrate
+    solver = Calibrate(flow, density, speed)
+    result = {"S3": solver.getSolution("S3")}
+
+    # Step 4: Print results
+    vf = result['S3'][0]
+    kc = result['S3'][1]
+    m = result['S3'][2]
+    q_max =  kc * vf / np.power(2, 2 / m)
+    vc = vf / np.power(2, 2 / m)
+
+    print('Calibration results:\n' + 'vf =', format(vf, ".2f") + ' mi/h')
+    print('kc =', format(kc, ".2f") + ' veh/mi/ln')
+    print('m =', format(result['S3'][2], '.2f'))
+    print("Vc = ", format(vc, ".2f") + " mi/h")
+    print("q_max = ", format(q_max, ".2f") + " veh/h/ln")
+
+    # Step 5: Plot results
+    # plot_results = PlotCalibrationResults(flow, density, speed, result)
+    # plot_results.plot_qk(xlim=(0, 60))
+    # plot_results.plot_vk(xlim=(0, 60))
+    # plot_results.plot_vq(ylim=(10, 80))
+
+    # Step 6: Get metrics
+    estimated_value = EstimatedValue(flow, density, speed)
+    estimated_speed, estimated_flow = estimated_value.S3(result["S3"])
+
+    metrics = GetMetrics(flow, density, speed, estimated_flow, estimated_speed)
+    S3_RMSE_SPEED_Overall, S3_RMSE_FLOW_Overall, S3_R2_SPEED_Overall, S3_R2_FLOW_Overall = metrics.RMSE_Overall()
+
+    print("Job done!")
