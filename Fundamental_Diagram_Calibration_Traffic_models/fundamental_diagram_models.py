@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
+import math
+from sklearn.metrics import mean_squared_error, r2_score
 
-class fundamental_diagram():
+
+class Fundamental_Diagram:
 
     def S3(self, beta, *args):
         vf, kc, foc = beta
@@ -266,8 +269,44 @@ class fundamental_diagram():
         f_obj = np.sum(np.power(estimated_density - observed_density, 2) + sigma * np.power(estimated_flow - observed_flow, 2))
         return f_obj
 
+    def fundamental_diagram_func_dict(self):
+        return {
+            "S3":self.S3,
+            "Greenshields":self.Greenshields,
+            "Greenberg":self.Greenberg,
+            "Underwood":self.Underwood,
+            "NF":self.NF,
+            "GHR_M1":self.GHR_M1,
+            "GHR_M2":self.GHR_M2,
+            "GHR_M3":self.GHR_M3,
+            "KK":self.KK,
+            "Jayakrishnan":self.Jayakrishnan,
+            "Van_Aerde":self.Van_Aerde,
+            "MacNicholas":self.MacNicholas,
+            "Wang_3PL":self.Wang_3PL,
+            "Wang_4PL":self.Wang_4PL,
+            "Wang_5PL":self.Wang_5PL,
+            "Ni":self.Ni,
+            "S3_joint_estimation":self.S3_joint_estimation,
+            "Greenshields_joint_estimation":self.Greenshields_joint_estimation,
+            "Greenberg_joint_estimation":self.Greenberg_joint_estimation,
+            "Underwood_joint_estimation":self.Underwood_joint_estimation,
+            "NF_joint_estimation":self.NF_joint_estimation,
+            "GHR_M1_joint_estimation":self.GHR_M1_joint_estimation,
+            "GHR_M2_joint_estimation":self.GHR_M2_joint_estimation,
+            "GHR_M3_joint_estimation":self.GHR_M3_joint_estimation,
+            "KK_joint_estimation":self.KK_joint_estimation,
+            "Jayakrishnan_joint_estimation":self.Jayakrishnan_joint_estimation,
+            "Van_Aerde_joint_estimation":self.Van_Aerde_joint_estimation,
+            "MacNicholas_joint_estimation":self.MacNicholas_joint_estimation,
+            "Wang_3PL_joint_estimation":self.Wang_3PL_joint_estimation,
+            "Wang_4PL_joint_estimation":self.Wang_4PL_joint_estimation,
+            "Wang_5PL_joint_estimation":self.Wang_5PL_joint_estimation,
+            "Ni_joint_estimation":self.Ni_joint_estimation,
+        }
 
-class estimated_value():
+
+class Estimated_Value:
 
     def S3(self, beta, *args):
         vf, kc, foc = beta
@@ -499,8 +538,44 @@ class estimated_value():
         estimated_flow = observed_speed/((gamma*np.power(observed_speed,2)+tao*observed_speed+l)*(1-np.log(1-observed_speed/vf)))
         return estimated_density, estimated_flow
 
+    def estimated_value_func_dict(self):
+        return {
+            "S3":self.S3,
+            "Greenshields":self.Greenshields,
+            "Greenberg":self.Greenberg,
+            "Underwood":self.Underwood,
+            "NF":self.NF,
+            "GHR_M1":self.GHR_M1,
+            "GHR_M2":self.GHR_M2,
+            "GHR_M3":self.GHR_M3,
+            "KK":self.KK,
+            "Jayakrishnan":self.Jayakrishnan,
+            "Van_Aerde":self.Van_Aerde,
+            "MacNicholas":self.MacNicholas,
+            "Wang_3PL":self.Wang_3PL,
+            "Wang_4PL":self.Wang_4PL,
+            "Wang_5PL":self.Wang_5PL,
+            "Ni":self.Ni,
+            "S3_joint_estimation":self.S3_joint_estimation,
+            "Greenshields_joint_estimation":self.Greenshields_joint_estimation,
+            "Greenberg_joint_estimation":self.Greenberg_joint_estimation,
+            "Underwood_joint_estimation":self.Underwood_joint_estimation,
+            "NF_joint_estimation":self.NF_joint_estimation,
+            "GHR_M1_joint_estimation":self.GHR_M1_joint_estimation,
+            "GHR_M2_joint_estimation":self.GHR_M2_joint_estimation,
+            "GHR_M3_joint_estimation":self.GHR_M3_joint_estimation,
+            "KK_joint_estimation":self.KK_joint_estimation,
+            "Jayakrishnan_joint_estimation":self.Jayakrishnan_joint_estimation,
+            "Van_Aerde_joint_estimation":self.Van_Aerde_joint_estimation,
+            "MacNicholas_joint_estimation":self.MacNicholas_joint_estimation,
+            "Wang_3PL_joint_estimation":self.Wang_3PL_joint_estimation,
+            "Wang_4PL_joint_estimation":self.Wang_4PL_joint_estimation,
+            "Wang_5PL_joint_estimation":self.Wang_5PL_joint_estimation,
+            "Ni_joint_estimation":self.Ni_joint_estimation,
+        }
 
-class theoretical_value():
+
+class Theoretical_Value:
 
     def S3(self, beta, density):
         vf, kc, foc = beta
@@ -699,3 +774,92 @@ class theoretical_value():
         theoretical_density = 1/((gamma*np.power(speed,2)+tao*speed+l)*(1-np.log(1-speed/vf)))
         theoretical_flow = speed/((gamma*np.power(speed,2)+tao*speed+l)*(1-np.log(1-speed/vf)))
         return theoretical_density, theoretical_flow
+
+    def theoretical_value_func_dict(self):
+        return {
+            "S3":self.S3,
+            "Greenshields":self.Greenshields,
+            "Greenberg":self.Greenberg,
+            "Underwood":self.Underwood,
+            "NF":self.NF,
+            "GHR_M1":self.GHR_M1,
+            "GHR_M2":self.GHR_M2,
+            "GHR_M3":self.GHR_M3,
+            "KK":self.KK,
+            "Jayakrishnan":self.Jayakrishnan,
+            "Van_Aerde":self.Van_Aerde,
+            "MacNicholas":self.MacNicholas,
+            "Wang_3PL":self.Wang_3PL,
+            "Wang_4PL":self.Wang_4PL,
+            "Wang_5PL":self.Wang_5PL,
+            "Ni":self.Ni,
+            "S3_joint_estimation":self.S3_joint_estimation,
+            "Greenshields_joint_estimation":self.Greenshields_joint_estimation,
+            "Greenberg_joint_estimation":self.Greenberg_joint_estimation,
+            "Underwood_joint_estimation":self.Underwood_joint_estimation,
+            "NF_joint_estimation":self.NF_joint_estimation,
+            "GHR_M1_joint_estimation":self.GHR_M1_joint_estimation,
+            "GHR_M2_joint_estimation":self.GHR_M2_joint_estimation,
+            "GHR_M3_joint_estimation":self.GHR_M3_joint_estimation,
+            "KK_joint_estimation":self.KK_joint_estimation,
+            "Jayakrishnan_joint_estimation":self.Jayakrishnan_joint_estimation,
+            "Van_Aerde_joint_estimation":self.Van_Aerde_joint_estimation,
+            "MacNicholas_joint_estimation":self.MacNicholas_joint_estimation,
+            "Wang_3PL_joint_estimation":self.Wang_3PL_joint_estimation,
+            "Wang_4PL_joint_estimation":self.Wang_4PL_joint_estimation,
+            "Wang_5PL_joint_estimation":self.Wang_5PL_joint_estimation,
+            "Ni_joint_estimation":self.Ni_joint_estimation,
+        }
+
+
+class GetMetrics:
+
+    def __init__(self, observed_flow: np.array, observed_density: np.array, observed_speed: np.array, estimated_flow: np.array, estimated_speed: np.array):
+        self.observed_flow = observed_flow
+        self.observed_density = observed_density
+        self.observed_speed = observed_speed
+        self.estimated_flow = estimated_flow
+        self.estimated_speed = estimated_speed
+
+    def RMSE_Overall(self) -> list:
+        rmse_speed = mean_squared_error(self.observed_speed, self.estimated_speed, squared=False)
+        rmse_flow = mean_squared_error(self.observed_flow, self.estimated_flow, squared=False)
+        r2_speed = r2_score(self.observed_speed, self.estimated_speed)
+        r2_flow = r2_score(self.observed_flow, self.estimated_flow)
+        return [rmse_speed, rmse_flow, r2_speed, r2_flow]
+
+    def RMSE_Small_Range(self, interval: int = 10) -> list:
+        rmse_speed_small_range = []
+        rmse_flow_small_range = []
+        density_max_value = min(math.ceil(max(self.observed_density) / 10), 10)
+        for i in range(density_max_value):
+            temp_index = np.where((self.observed_density >= interval*i) & (self.observed_density < interval*(i+1)))
+            observed_speed_i = self.observed_speed[temp_index]
+            estimated_speed_i = self.estimated_speed[temp_index]
+            observed_flow_i = self.observed_flow[temp_index]
+            estimated_flow_i = self.estimated_flow[temp_index]
+            try:
+                rmse_speed_small_range.append(mean_squared_error(observed_speed_i, estimated_speed_i, squared=False))
+            except Exception:
+                rmse_speed_small_range.append(0)
+
+            try:
+                rmse_flow_small_range.append(mean_squared_error(observed_flow_i, estimated_flow_i, squared=False))
+            except Exception:
+                rmse_flow_small_range.append(0)
+        observed_speed_last = self.observed_speed[np.where((self.observed_density >= density_max_value))]
+        estimated_speed_last = self.estimated_speed[np.where((self.observed_density >= density_max_value))]
+        observed_flow_last = self.observed_flow[np.where((self.observed_density >= density_max_value))]
+        estimated_flow_last = self.estimated_flow[np.where((self.observed_density >= density_max_value))]
+
+        try:
+            rmse_speed_small_range.append(mean_squared_error(observed_speed_last, estimated_speed_last, squared=False))
+        except Exception:
+            rmse_speed_small_range.append(0)
+
+        try:
+            rmse_flow_small_range.append(mean_squared_error(observed_flow_last, estimated_flow_last, squared=False))
+        except Exception:
+            rmse_flow_small_range.append(0)
+
+        return rmse_speed_small_range, rmse_flow_small_range
