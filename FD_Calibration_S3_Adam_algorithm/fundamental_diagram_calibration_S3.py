@@ -378,7 +378,7 @@ class Calibrate:
 if __name__ == '__main__':
 
     # Step 0: Prepare input data path
-    path_input = r"../data/demo_data_traffic_models_adot/adot_formatted_data_6am_8pm_main.csv"
+    path_input = r"../data/demo_data_traffic_models_1/input_data.csv"
 
     # Step 1: Read data
     df_input = pd.read_csv(path_input)
@@ -389,8 +389,9 @@ if __name__ == '__main__':
 
     # Step 2: Get Flow, Density, Speed data accordingly
     # Step 2.1 data preprocessing, not necessary, only if you have date and time columns in your input data
-    date_invalid = list(df_input[df_input["Flow"] == 0]["date"].unique())
-    df_input = df_input[~df_input['date'].isin(date_invalid)]
+    if {"date"}.issubset(df_input.columns):
+        date_invalid = list(df_input[df_input["Flow"] == 0]["date"].unique())
+        df_input = df_input[~df_input['date'].isin(date_invalid)]
 
     # Step 2.2 get flow, density and speed data
     flow = np.array(df_input.Flow)

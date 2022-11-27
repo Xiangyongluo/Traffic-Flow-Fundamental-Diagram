@@ -64,7 +64,7 @@ class FD_CalibrateSolver:
         if not isinstance(data, pd.DataFrame):
             raise TypeError("The data should be a pandas DataFrame.")
 
-        if not {"Flow", "Density", "Speed"}.issubset(data.columns):
+        if not {"flow", "density", "speed"}.issubset(data.columns):
             raise ValueError("The data should include the columns: Flow, Density, and Speed.")
 
         # if not specified the model parameters, then use the default values
@@ -78,9 +78,9 @@ class FD_CalibrateSolver:
         if not {"vf", "vc", "kc", "m", "q_max"}.issubset(model_parameters_dict.keys()):
             raise KeyError("The model_parameters_dict should at least contain vf, vc, kc, m, q_max.")
 
-        self.speed = np.array(data.Speed)
-        self.density = np.array(data.Density)
-        self.flow = np.array(data.Flow)
+        self.speed = np.array(data.speed)
+        self.density = np.array(data.density)
+        self.flow = np.array(data.flow)
         self.model_parameters_dict = model_parameters_dict
 
         # initial functions
