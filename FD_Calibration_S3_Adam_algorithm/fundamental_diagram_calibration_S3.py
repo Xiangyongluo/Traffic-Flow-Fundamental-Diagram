@@ -378,18 +378,19 @@ class Calibrate:
 if __name__ == '__main__':
 
     # Step 0: Prepare input data path
-    path_input = r"../data/demo_data_traffic_models_1/input_data.csv"
+    path_input = r"../data/demo_data_traffic_models_1/Reading.csv"
 
     # Step 1: Read data
     df_input = pd.read_csv(path_input)
 
     # Step 1.1 check if required columns in the dataframe
-    if not {"Flow", "Density", "Speed"}.issubset(df_input.columns):
-        raise ValueError("Input dataframe must include columns: Flow, Density, Speed")
+    col_names = list(df_input.columns)
+    if not {"Flow", "Density", "Speed"}.issubset(col_names):
+        raise ValueError("Input dataframe must include capitalized columns: Flow, Density, Speed")
 
     # Step 2: Get Flow, Density, Speed data accordingly
     # Step 2.1 data preprocessing, not necessary, only if you have date and time columns in your input data
-    if {"date"}.issubset(df_input.columns):
+    if {"date"}.issubset(col_names):
         date_invalid = list(df_input[df_input["Flow"] == 0]["date"].unique())
         df_input = df_input[~df_input['date'].isin(date_invalid)]
 
