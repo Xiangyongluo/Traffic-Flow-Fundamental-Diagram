@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 # Citation: Cheng, Q., Liu, Z., Lin, Y., Zhou, X., 2021. An s-shaped three-parameter (S3) traffic stream model with consistent car following relationship. Under review.
 
-from email.mime import base
 import os
 import math
 from datetime import datetime
@@ -14,8 +13,9 @@ import warnings
 warnings.filterwarnings('ignore')
 
 plt.rcParams.update({'figure.max_open_warning': 0})
-plt.rc('font',family='Times New Roman')
-plt.rcParams['mathtext.fontset']='stix'
+plt.rc('font', family='Times New Roman')
+plt.rcParams['mathtext.fontset'] = 'stix'
+
 
 # Measure running time of the function
 def func_running_time(func):
@@ -30,7 +30,7 @@ def func_running_time(func):
     return inner
 
 
-def get_outer_layer_data(df: pd.DataFrame, base_col_name: str, target_col_name: str, base_interval: int = 1,  percentile: float = 1) -> pd.DataFrame:
+def get_outer_layer_data(df: pd.DataFrame, base_col_name: str, target_col_name: str, base_interval: int = 1, percentile: float = 1) -> pd.DataFrame:
     # TDD development
     if {base_col_name, target_col_name}.issubset(df.columns):
         raise Exception(f'ERROR: {base_col_name} or {target_col_name} is not in the dataframe columns!')
@@ -360,7 +360,9 @@ class FD_CalibrateSolver:
         print(f"Info: Successfully saved figures in {output_path}")
 
     @func_running_time
-    def plot_fd_combo(self, solution_dict: dict, model_name_list: list = [], output_path: str = "../examples/Figures_combo", transparency: float = 1):
+    def plot_fd_combo(self, solution_dict: dict, model_name_list: list = [],
+                      output_path: str = "../examples/Figures_combo",
+                      transparency: float = 1):
 
         if not model_name_list:
             model_name_list = list(self.x0.keys())
