@@ -10,7 +10,7 @@ class Fundamental_Diagram:
     def S3(self, beta, *args):
         vf, kc, foc = beta
         observed_flow, observed_density, observed_speed = args
-        estimated_speed = vf/np.power(1 + np.power((observed_density/kc), foc), 2/foc)
+        estimated_speed = vf / np.power(1 + np.power((observed_density / kc), foc), 2 / foc)
         f_obj = np.sum(np.power(estimated_speed - observed_speed, 2))
         return f_obj
 

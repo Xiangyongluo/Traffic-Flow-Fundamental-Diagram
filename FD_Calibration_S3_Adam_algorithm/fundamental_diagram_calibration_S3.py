@@ -35,20 +35,22 @@ class FundamentalDiagramModel:
 
     def S3(self, beta: list):
         vf, kc, foc = beta
-        estimated_speed = vf/np.power(1 + np.power((self.observed_density/kc), foc), 2/foc)
+        estimated_speed = vf / \
+            np.power(1 + np.power((self.observed_density / kc), foc), 2 / foc)
         f_obj = np.mean(np.power(estimated_speed - self.observed_speed, 2))
         return f_obj
 
     def OVM(self, beta):
         vf, veh_length, form_factor, transition_width = beta
-        estimated_speed = vf*(np.tanh((1-self.observed_density*veh_length)/(
-            self.observed_density*transition_width))+np.tanh(form_factor))/(1+np.tanh(form_factor))
+        estimated_speed = vf * (np.tanh((1 - self.observed_density * veh_length) / (
+            self.observed_density * transition_width))+np.tanh(form_factor))/(1+np.tanh(form_factor))
         f_obj = np.mean(np.power(estimated_speed - self.observed_speed, 2))
         return f_obj
 
     def METANET(self, beta):
         vf, kc, foc = beta
-        estimated_speed = vf*np.exp(-1/foc*np.power(self.observed_density/kc, foc))
+        estimated_speed = vf * \
+            np.exp(-1/foc*np.power(self.observed_density/kc, foc))
         f_obj = np.mean(np.power(estimated_speed - self.observed_speed, 2))
         return f_obj
 
@@ -378,14 +380,14 @@ class Calibrate:
 if __name__ == '__main__':
 
     # Step 0: Prepare input data path
-    path_input = r"../data/demo_data_traffic_models_1/input_data.csv"
+    path_input = r"../data/demo_data_traffic_models_1/Reading.csv"
 
     # Step 1: Read data
     df_input = pd.read_csv(path_input)
 
     # Step 1.1 check if required columns in the dataframe
     if not {"Flow", "Density", "Speed"}.issubset(df_input.columns):
-        raise ValueError("Input dataframe must include columns: Flow, Density, Speed")
+        raise ValueError("Input dataframe must include capitalized columns: Flow, Density, Speed")
 
     # Step 2: Get Flow, Density, Speed data accordingly
     # Step 2.1 data preprocessing, not necessary, only if you have date and time columns in your input data
@@ -406,7 +408,7 @@ if __name__ == '__main__':
     vf = result['S3'][0]
     kc = result['S3'][1]
     m = result['S3'][2]
-    q_max =  kc * vf / np.power(2, 2 / m)
+    q_max = kc * vf / np.power(2, 2 / m)
     vc = vf / np.power(2, 2 / m)
 
     print('Calibration results:\n' + 'vf =', format(vf, ".2f") + ' mi/h')
