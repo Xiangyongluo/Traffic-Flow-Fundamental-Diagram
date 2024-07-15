@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools", "wheel", "twine"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "traffic-flow-foundamental-diagram"
+version = "0.1.0"
+description = "Calculates key traffic flow models, including the Greenshield, Greenberg, and all existing traffic flow models. It's designed for researchers and traffic engineers to analyze and visualize traffic behavior easily."
+authors = [
+    {name = "Xiangyong Luo", email = "luoxiangyong01@gmail.com"},
+    {name = "Xuesong Simon Zhou", email = "xzhou74@asu.edu"},
+]
+maintainers = [
+    {name = "Xiangyong Luo", email = "luoxiangyong01@gmail.com"},
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+]
+
+readme = {file = 'README.md', content-type='text/markdown'}
+license = {file = 'LICENSE', content-type='text/plain'}
+# license = {text = "Apache License"}
+
+requires-python = ">=3.10"
+keywords = ["traffic flow", "traffic flow models", "traffic flow analysis", "traffic flow visualization", "traffic flow fundamental diagram"]
+
+dynamic = ["dependencies"]
+
+[project.urls]
+"Homepage" = 'https://github.com/asu-trans-ai-lab/grid2demand'
+# Documentation = 'https://github.com/xyluo25/grid2demand'
+# Bug_Tracker = 'https://github.com/xyluo25/grid2demand/issues'
+# Repository = "https://github.com/xyluo25/grid2demand"
+# Download = "https://www.pepy.tech/projects/pyufunc"
+
+#         # 'Publication': '',
+#         # 'Citation': '',
+#         # 'Acknowledgement': '',
+#         # 'FAQs': '',
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+# optional-dependencies = {file = ["requirements_dev.txt"]}
+
+[tool.setuptools]
+py-modules = []
+package-data = {'grid2demand' = ['*.txt', '*.xls', '*.xlsx', '*.csv'], "test_data" = ['*.xls']}
+
+# [tool.setuptools.packages.find]
+# where = ["grid2demand"]
+
+# [tool.setuptools.package-data]
+# grid2demand = ['*.txt', '*.xls', '*.xlsx', '*.csv']
