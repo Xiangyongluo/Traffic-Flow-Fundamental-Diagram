@@ -6,4 +6,4 @@
 ##############################################################
 
 
-from .foundamental_diagram import *
+from foundamental_models import *
