@@ -11,22 +11,19 @@ class Fundamental_Diagram:
         vf, kc, foc = beta
         observed_flow, observed_density, observed_speed = args
         estimated_speed = vf/np.power(1 + np.power((observed_density/kc), foc), 2/foc)
-        f_obj = np.sum(np.power(estimated_speed - observed_speed, 2))
-        return f_obj
+        return np.sum(np.power(estimated_speed - observed_speed, 2))
 
     def Greenshields(self, beta, *args):
         vf, k_jam = beta
         observed_flow, observed_density, observed_speed = args
         estimated_speed = vf*(1 - observed_density/k_jam)
-        f_obj = np.sum(np.power(estimated_speed - observed_speed, 2))
-        return f_obj
+        return np.sum(np.power(estimated_speed - observed_speed, 2))
 
     def Greenberg(self, beta, *args):
         vc, k_jam = beta
         observed_flow, observed_density, observed_speed = args
         estimated_speed = vc*np.log(k_jam/observed_density)
-        f_obj = np.sum(np.power(estimated_speed - observed_speed, 2))
-        return f_obj
+        return np.sum(np.power(estimated_speed - observed_speed, 2))
 
     def Underwood(self, beta, *args):
         vf, kc = beta
